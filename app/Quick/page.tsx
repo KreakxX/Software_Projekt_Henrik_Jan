@@ -1,5 +1,7 @@
 "use client";
 
+import type React from "react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,341 +9,612 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import {
   AlertTriangle,
-  ArrowDown,
   CheckCircle,
   ChevronDown,
   ChevronUp,
-  ClipboardCheck,
-  Clock,
   Code,
-  CornerDownLeft,
-  CornerLeftDown,
   FileCode,
   FileUp,
   GitBranch,
   Lightbulb,
-  School,
-  TimerIcon,
   Upload,
   User,
   XCircle,
+  Sparkles,
+  BarChart3,
+  Zap,
+  Shield,
+  Cpu,
+  Layers,
+  Clipboard,
 } from "lucide-react";
 import { useState } from "react";
+import JSZip from "jszip";
+import { motion } from "framer-motion";
 
 const ProjectAnalyzer: React.FC = () => {
   const [offen, setoffen] = useState<boolean>(false);
+  const [file_titleFolder, setFile_titleFolder] = useState<string>("");
+  const [file_titleCriteria, setFile_titleCriteria] = useState<string>("");
+  const [notenpunkte, setNotenPunkte] = useState<number>(13);
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+  const [showResults, setShowResults] = useState<boolean>(false);
+  const [prompt, setPrompt] = useState<string>("");
+
+  const handleFileUploadFolder = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    try {
+      const files = event.target.files;
+      if (!files) return;
+
+      const formData = new FormData();
+      Array.from(files).forEach((file) => {
+        formData.append("files", file, file.webkitRelativePath);
+        setFile_titleFolder(file.name);
+      });
+      for (const file of files) {
+        const zip = await JSZip.loadAsync(file);
+        for (const [relativePath, zipEntry] of Object.entries(zip.files)) {
+          if (!zipEntry.dir) {
+            const fileData = await zipEntry.async("blob");
+            const extractedFile = new File([fileData], relativePath, {
+              type: "application/octet-stream",
+            });
+            formData.append("files", extractedFile, relativePath);
+          }
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  };
+
+  const handleFileUploadCriteria = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    try {
+      const files = event.target.files;
+      if (!files) return;
+
+      const formData = new FormData();
+
+      Array.from(files).forEach((file) => {
+        formData.append("files", file, file.webkitRelativePath);
+        setFile_titleCriteria(file.name);
+      });
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  };
+
+  const handleAnalyze = () => {
+    if (!file_titleFolder || !file_titleCriteria) return;
+
+    setIsAnalyzing(true);
+
+    // Simulate analysis process
+    setTimeout(() => {
+      setIsAnalyzing(false);
+      setShowResults(true);
+    }, 3000);
+  };
+
   return (
-    <div className="flex justify-center bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-950 min-h-screen w-full">
-      <div className="absolute right-0 top-0 ">
-        <User className="absolute right-8 top-8 text-indigo-400 w-8 h-8 " />
+    <div className="min-h-screen w-full bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 text-white">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl"></div>
       </div>
-      <div className="flex-col justify-center text-center ">
-        <h1 className="bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-600 bg-clip-text text-transparent font-bold text-5xl mt-20">
-          Quick IO
-        </h1>
 
-        <div className="flex justify-center mb-20">
-          <Card className="mt-15 h-[600px] w-[800px] bg-gradient-to-r from-indigo-750 via-slate-800 to-slate-750 border-none border-black shadow-lg shadow-black ">
-            <CardHeader className="text-center text-indigo-400 font-bold text-3xl">
-              AI Code Reviewer
+      <div className="container mx-auto px-4 py-8 relative z-10">
+        <div className="flex justify-between items-center mb-8">
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-600 bg-clip-text text-transparent font-bold text-5xl"
+          >
+            Quick IO
+          </motion.h1>
+          <div className="flex items-center gap-2 bg-slate-800/50 p-2 rounded-full absolute right-0 top-10">
+            <User className="text-indigo-400 w-6 h-6 " />
+            <span className="text-indigo-200 font-medium">User</span>
+          </div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="text-center mb-10"
+        >
+          <h2 className="text-3xl font-bold text-indigo-300 flex items-center justify-center gap-2">
+            AI Code Reviewer
+          </h2>
+          <p className="text-indigo-200 mt-2 max-w-2xl mx-auto">
+            Upload your project files and criteria document to get an AI-powered
+            code review with detailed feedback and suggestions.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <Card className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-indigo-500/20 shadow-xl shadow-indigo-900/20 backdrop-blur-sm">
+            <CardHeader className="border-b border-indigo-500/20 pb-4">
+              <CardTitle className="text-center text-indigo-300 font-bold text-2xl flex items-center justify-center gap-2">
+                <FileCode className="h-6 w-6 text-indigo-400" />
+                Project Analysis
+              </CardTitle>
             </CardHeader>
-            <CardContent className="w-[800px]">
-              <div className="flex-col">
-                <div className="flex justify-between mt-10 w-[600px] gap-10">
-                  <h1 className=" pt-5 pb-6 text-indigo-400 font-bold text-xl w-[250px]">
+            <CardContent className="pt-6">
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <h3 className="text-indigo-300 font-semibold text-lg flex items-center gap-2">
+                    <Layers className="h-5 w-5 text-indigo-400" />
                     Project Folder
-                  </h1>
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-indigo-400 rounded-md cursor-pointer transition-colors">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <Upload className="h-8 w-8 mb-2 text-gray-500 animate-pulse" />
-                      <p className="mb-1 text-sm text-gray-500">
-                        <span className="font-semibold">Click to upload</span>{" "}
-                        or drag and drop
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        PNG, JPG or PDF (Max: 10MB)
-                      </p>
+                  </h3>
+                  <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-indigo-400/50 rounded-lg cursor-pointer transition-all duration-300 hover:bg-indigo-950/30 hover:border-indigo-400 group">
+                    <div className="flex flex-col items-center justify-center p-5 text-center">
+                      <Upload className="h-8 w-8 mb-3 text-indigo-400 group-hover:text-indigo-300 transition-all duration-300 group-hover:scale-110" />
+                      {file_titleFolder ? (
+                        <div className="space-y-1">
+                          <p className="text-indigo-200 font-medium">
+                            {file_titleFolder}
+                          </p>
+                          <p className="text-xs text-indigo-400">
+                            File uploaded successfully
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          <p className="text-indigo-300 font-medium">
+                            <span className="font-bold">Click to upload</span>{" "}
+                            or drag and drop
+                          </p>
+                          <p className="text-xs text-indigo-400">
+                            ZIP files (Max: 20MB)
+                          </p>
+                        </div>
+                      )}
                     </div>
                     <input
+                      onChange={(event) => handleFileUploadFolder(event)}
                       type="file"
                       className="hidden"
-                      accept="image/*,.pdf"
-                    />
-                  </label>
-                </div>
-                <hr className="border-indigo-400 w-full mt-7 mb-7 " />
-                <div className="flex justify-between mt-10 w-[600px] gap-10">
-                  <h1 className=" pt-5 pb-6 text-indigo-400 font-bold text-xl w-[250px]">
-                    Criteria Document
-                  </h1>
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-indigo-400 rounded-md cursor-pointer transition-colors">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <FileUp className="h-8 w-8 mb-2 text-gray-500 animate-pulse" />
-                      <p className="mb-1 text-sm text-gray-500">
-                        <span className="font-semibold">Click to upload</span>{" "}
-                        or drag and drop
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        PNG, JPG or PDF (Max: 10MB)
-                      </p>
-                    </div>
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept="image/*,.pdf"
+                      accept=".zip"
+                      data-webkitdirectory="true"
+                      multiple
                     />
                   </label>
                 </div>
 
-                <div className="flex justify-between gap-5 mt-10">
+                {/* Criteria Document Upload */}
+                <div className="space-y-3">
+                  <h3 className="text-indigo-300 font-semibold text-lg flex items-center gap-2">
+                    <Clipboard className="h-5 w-5 text-indigo-400" />
+                    Criteria Document
+                  </h3>
+                  <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-indigo-400/50 rounded-lg cursor-pointer transition-all duration-300 hover:bg-indigo-950/30 hover:border-indigo-400 group">
+                    <div className="flex flex-col items-center justify-center p-5 text-center">
+                      <FileUp className="h-8 w-8 mb-3 text-indigo-400 group-hover:text-indigo-300 transition-all duration-300 group-hover:scale-110" />
+                      {file_titleCriteria ? (
+                        <div className="space-y-1">
+                          <p className="text-indigo-200 font-medium">
+                            {file_titleCriteria}
+                          </p>
+                          <p className="text-xs text-indigo-400">
+                            File uploaded successfully
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          <p className="text-indigo-300 font-medium">
+                            <span className="font-bold">Click to upload</span>{" "}
+                            or drag and drop
+                          </p>
+                          <p className="text-xs text-indigo-400">
+                            PDF or PNG (Max: 20MB)
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    <input
+                      onChange={(event) => handleFileUploadCriteria(event)}
+                      type="file"
+                      className="hidden"
+                      accept="image/*,.pdf"
+                      multiple
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* AI Prompt */}
+              <div className="mt-8 space-y-3">
+                <h3 className="text-indigo-300 font-semibold text-lg flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5 text-indigo-400" />
+                  AI Instructions (Optional)
+                </h3>
+                <div className="flex gap-4">
                   <Input
-                    placeholder="Enter AI Prompt"
-                    className="w-full mt-5 border-indigo-400"
-                  ></Input>
-                  <Button className="mt-5 bg-indigo-400 w-[130px] hover:bg-indigo-400 ">
-                    Ask Ai
+                    placeholder="Enter specific instructions for the AI reviewer..."
+                    className="flex-1 bg-slate-800/50 border-indigo-500/30 focus:border-indigo-400 text-indigo-100 placeholder:text-indigo-300/50"
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                  />
+                  <Button
+                    className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-6 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-600/20"
+                    onClick={handleAnalyze}
+                    disabled={
+                      isAnalyzing || !file_titleFolder || !file_titleCriteria
+                    }
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <span className="mr-2">Analyzing</span>
+                        <span className="animate-pulse">...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="mr-2 h-4 w-4" />
+                        Analyze Code
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>
             </CardContent>
           </Card>
-        </div>
-        <div className="flex justify-center ">
-          <ArrowDown className="mt-0 mb-10  w-10 h-10  text-indigo-400 animate-bounce" />
-          <h1 className="text-indigo-400 font-bold text-2xl">Results</h1>
-        </div>
-        <div className="flex justify-center mb-10 ">
-          <div className="w-full max-w-4xl mx-auto mt-8">
-            <h2 className="text-3xl font-bold text-indigo-400 mb-6 text-center">
-              Code Review Ergebnisse
-            </h2>
+        </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <Card className="bg-gradient-to-r from-slate-800 to-slate-700 border-none shadow-lg">
-                <CardContent className="pt-6">
-                  <div className="flex flex-col items-center">
-                    <div className="relative w-24 h-24 mb-2">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-3xl font-bold text-yellow-500 ">
-                          78
+        {showResults && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mt-16"
+          >
+            <div className="flex flex-col items-center mb-10">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-px w-16 bg-gradient-to-r from-transparent to-indigo-500"></div>
+                <h2 className="text-3xl font-bold text-indigo-300 flex items-center gap-2">
+                  <BarChart3 className="h-6 w-6 text-indigo-400" />
+                  Analysis Results
+                </h2>
+                <div className="h-px w-16 bg-gradient-to-l from-transparent to-indigo-500"></div>
+              </div>
+            </div>
+
+            {/* Score Card */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+              <Card className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-indigo-500/20 shadow-lg col-span-1 md:col-span-3">
+                <CardContent className="pt-6 pb-6">
+                  <div className="flex flex-col md:flex-row items-center justify-between">
+                    <div className="flex items-center gap-6 mb-6 md:mb-0">
+                      <div className="relative w-28 h-28">
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-4xl font-bold text-green-500">
+                            {notenpunkte}
+                          </span>
+                        </div>
+                        <svg
+                          className="w-28 h-28 transform -rotate-90"
+                          viewBox="0 0 100 100"
+                        >
+                          <circle
+                            cx="50"
+                            cy="50"
+                            r="45"
+                            fill="transparent"
+                            stroke="#334155"
+                            strokeWidth="8"
+                          />
+                          <circle
+                            cx="50"
+                            cy="50"
+                            r="45"
+                            fill="transparent"
+                            stroke="#10B981"
+                            strokeWidth="8"
+                            strokeDasharray="282.6 113.04"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-bold text-indigo-300 mb-1">
+                          Excellent
+                        </h3>
+                        <p className="text-indigo-400">
+                          Your code meets high quality standards
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="flex flex-col items-center p-3 bg-slate-800/50 rounded-lg">
+                        <span className="text-xl font-bold text-yellow-500">
+                          78%
+                        </span>
+                        <span className="text-indigo-300 text-sm">Overall</span>
+                      </div>
+                      <div className="flex flex-col items-center p-3 bg-slate-800/50 rounded-lg">
+                        <span className="text-xl font-bold text-green-500">
+                          85%
+                        </span>
+                        <span className="text-indigo-300 text-sm">Quality</span>
+                      </div>
+                      <div className="flex flex-col items-center p-3 bg-slate-800/50 rounded-lg">
+                        <span className="text-xl font-bold text-yellow-500">
+                          70%
+                        </span>
+                        <span className="text-indigo-300 text-sm">
+                          Best Practices
                         </span>
                       </div>
-                      <svg
-                        className="w-24 h-24 transform -rotate-90"
-                        viewBox="0 0 100 100"
-                      >
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="45"
-                          fill="transparent"
-                          stroke="#334155"
-                          strokeWidth="8"
-                        />
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="45"
-                          fill="transparent"
-                          stroke="#eab308"
-                          strokeWidth="8"
-                          strokeDasharray="282.6 113.04"
-                          strokeLinecap="round"
-                        />
-                      </svg>
+                      <div className="flex flex-col items-center p-3 bg-slate-800/50 rounded-lg">
+                        <span className="text-xl font-bold text-green-500">
+                          80%
+                        </span>
+                        <span className="text-indigo-300 text-sm">
+                          Performance
+                        </span>
+                      </div>
                     </div>
-                    <h3 className="text-white font-semibold text-lg">
-                      Gesamtbewertung
-                    </h3>
                   </div>
                 </CardContent>
               </Card>
+            </div>
 
-              <Card className="bg-gradient-to-r from-slate-800 to-slate-700 border-none shadow-lg">
+            {/* Metrics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+              <Card className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-indigo-500/20 shadow-lg hover:shadow-indigo-900/30 transition-all duration-300 hover:-translate-y-1">
                 <CardContent className="pt-6">
                   <div className="flex flex-col">
-                    <div className="flex justify-between mb-2">
-                      <span className="text-white font-medium">
-                        Code-Qualität
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-indigo-200 font-semibold text-lg flex items-center gap-2">
+                        <Code className="h-5 w-5 text-indigo-400" />
+                        Code Quality
                       </span>
-                      <span className="text-green-500">85%</span>
+                      <span className="text-green-500 font-bold">85%</span>
                     </div>
-                    <Progress value={85} className="h-2" />
-                    <div className="mt-4 flex items-center">
-                      <Code className="h-5 w-5 text-slate-400 mr-2" />
-                      <span className="text-slate-300 text-sm">
-                        Lesbarkeit & Struktur
-                      </span>
+                    <Progress value={85} className="h-2 mb-4" />
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-indigo-300">Readability</span>
+                        <span className="text-green-500">90%</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-indigo-300">Structure</span>
+                        <span className="text-green-500">85%</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-indigo-300">Documentation</span>
+                        <span className="text-yellow-500">70%</span>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gradient-to-r from-slate-800 to-slate-700 border-none shadow-lg">
+              <Card className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-indigo-500/20 shadow-lg hover:shadow-indigo-900/30 transition-all duration-300 hover:-translate-y-1">
                 <CardContent className="pt-6">
                   <div className="flex flex-col">
-                    <div className="flex justify-between mb-2">
-                      <span className="text-white font-medium">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-indigo-200 font-semibold text-lg flex items-center gap-2">
+                        <GitBranch className="h-5 w-5 text-indigo-400" />
                         Best Practices
                       </span>
-                      <span className="text-yellow-500">70%</span>
+                      <span className="text-yellow-500 font-bold">70%</span>
                     </div>
-                    <Progress value={70} className="h-2" />
-                    <div className="mt-4 flex items-center">
-                      <GitBranch className="h-5 w-5 text-slate-400 mr-2" />
-                      <span className="text-slate-300 text-sm">
-                        Patterns & Standards
-                      </span>
+                    <Progress value={70} className="h-2 mb-4" />
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-indigo-300">Design Patterns</span>
+                        <span className="text-green-500">80%</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-indigo-300">Standards</span>
+                        <span className="text-yellow-500">65%</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-indigo-300">Error Handling</span>
+                        <span className="text-yellow-500">60%</span>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Performance */}
-              <Card className="bg-gradient-to-r from-slate-800 to-slate-700 border-none shadow-lg">
+              <Card className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-indigo-500/20 shadow-lg hover:shadow-indigo-900/30 transition-all duration-300 hover:-translate-y-1">
                 <CardContent className="pt-6">
                   <div className="flex flex-col">
-                    <div className="flex justify-between mb-2">
-                      <span className="text-white font-medium">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-indigo-200 font-semibold text-lg flex items-center gap-2">
+                        <Cpu className="h-5 w-5 text-indigo-400" />
                         Performance
                       </span>
-                      <span className="text-green-500">80%</span>
+                      <span className="text-green-500 font-bold">80%</span>
                     </div>
-                    <Progress value={80} className="h-2" />
-                    <div className="mt-4 flex items-center">
-                      <Clock className="h-5 w-5 text-slate-400 mr-2" />
-                      <span className="text-slate-300 text-sm">
-                        Effizienz & Optimierung
-                      </span>
+                    <Progress value={80} className="h-2 mb-4" />
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-indigo-300">Efficiency</span>
+                        <span className="text-green-500">85%</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-indigo-300">Optimization</span>
+                        <span className="text-green-500">80%</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-indigo-300">Resource Usage</span>
+                        <span className="text-yellow-500">75%</span>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
-            <div className="flex justify-center">
+
+            {/* Detailed Feedback Toggle */}
+            <div className="flex justify-center mb-6">
               <Button
-                className="bg-indigo-400 mb-5 hover:bg-indigo-400 hover:-translate-y-1 transition-all duration-300"
-                onClick={() => {
-                  setoffen(!offen);
-                }}
+                variant="outline"
+                className="border-indigo-500/30 text-indigo-300 bg-indigo-950/50 hover:bg-indigo-950/50 hover:text-indigo-200 transition-all duration-300"
+                onClick={() => setoffen(!offen)}
               >
-                {offen ? <ChevronUp></ChevronUp> : <ChevronDown></ChevronDown>}
+                {offen ? (
+                  <div className="flex items-center gap-2">
+                    <span>Hide Detailed Feedback</span>
+                    <ChevronUp className="h-4 w-4" />
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span>Show Detailed Feedback</span>
+                    <ChevronDown className="h-4 w-4" />
+                  </div>
+                )}
               </Button>
             </div>
-            {offen ? (
-              <Card className="bg-gradient-to-r from-slate-800 to-slate-700 border-none shadow-lg mb-6">
+
+            {/* Detailed Feedback */}
+            {offen && (
+              <Card className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-indigo-500/20 shadow-lg mb-10">
                 <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <FileCode className="mr-2 h-5 w-5" />
-                    Detailliertes Feedback
+                  <CardTitle className="text-indigo-300 flex items-center gap-2">
+                    <FileCode className="h-5 w-5 text-indigo-400" />
+                    Detailed Feedback
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-start p-3 rounded-md bg-slate-900">
+                  <div className="space-y-4 ">
+                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-green-500 transition-all duration-300 hover:bg-slate-800">
                       <div className="mr-3 mt-0.5">
                         <CheckCircle className="h-5 w-5 text-green-500" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-white mb-1">
-                          Gute Verwendung von Komponenten-Struktur
+                        <p className="text-white font-medium mb-1">
+                          Excellent Component Structure
+                        </p>
+                        <p className="text-indigo-300 text-sm">
+                          Your component organization follows best practices
+                          with clear separation of concerns.
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-start p-3 rounded-md bg-slate-900">
+                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-red-500 transition-all duration-300 hover:bg-slate-800">
                       <div className="mr-3 mt-0.5">
-                        <XCircle className="h-5 w-5 text-red-500 animate-ping" />
+                        <XCircle className="h-5 w-5 text-red-500" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-white mb-1">
-                          Fehlende Fehlerbehandlung in API-Aufrufen
+                        <p className="text-white font-medium mb-1">
+                          Missing Error Handling in API Calls
+                        </p>
+                        <p className="text-indigo-300 text-sm mb-2">
+                          API calls should include proper error handling to
+                          improve user experience when requests fail.
                         </p>
                         <div className="flex gap-2 mt-1">
                           <Badge
                             variant="outline"
-                            className="text-xs bg-slate-800 text-slate-300 border-slate-700 "
+                            className="text-xs bg-slate-700 text-indigo-200 border-slate-600"
                           >
                             api.ts
                           </Badge>
                           <Badge
                             variant="outline"
-                            className="text-xs bg-slate-800 text-slate-300 border-slate-700"
+                            className="text-xs bg-slate-700 text-indigo-200 border-slate-600"
                           >
-                            Zeile 42
+                            Line 42
                           </Badge>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-start p-3 rounded-md bg-slate-900">
+                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-yellow-500 transition-all duration-300 hover:bg-slate-800">
                       <div className="mr-3 mt-0.5">
                         <AlertTriangle className="h-5 w-5 text-yellow-500" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-white mb-1">
-                          Unnötige Re-Renders durch fehlende Memoization
+                        <p className="text-white font-medium mb-1">
+                          Unnecessary Re-renders Due to Missing Memoization
+                        </p>
+                        <p className="text-indigo-300 text-sm mb-2">
+                          Consider using React.memo or useMemo to prevent
+                          unnecessary re-renders of components.
                         </p>
                         <div className="flex gap-2 mt-1">
                           <Badge
                             variant="outline"
-                            className="text-xs bg-slate-800 text-slate-300 border-slate-700"
+                            className="text-xs bg-slate-700 text-indigo-200 border-slate-600"
                           >
                             UserList.tsx
                           </Badge>
                           <Badge
                             variant="outline"
-                            className="text-xs bg-slate-800 text-slate-300 border-slate-700"
+                            className="text-xs bg-slate-700 text-indigo-200 border-slate-600"
                           >
-                            Zeile 23
+                            Line 23
                           </Badge>
                         </div>
                       </div>
                     </div>
 
-                    {/* Feedback Item 4 */}
-                    <div className="flex items-start p-3 rounded-md bg-slate-900">
+                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-red-500 transition-all duration-300 hover:bg-slate-800">
                       <div className="mr-3 mt-0.5">
-                        <XCircle className="h-5 w-5 text-red-500 animate-ping" />
+                        <XCircle className="h-5 w-5 text-red-500" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-white mb-1">
-                          Ungenutzte Variablen gefunden
+                        <p className="text-white font-medium mb-1">
+                          Unused Variables Detected
+                        </p>
+                        <p className="text-indigo-300 text-sm mb-2">
+                          Remove unused variables to improve code cleanliness
+                          and prevent potential memory issues.
                         </p>
                         <div className="flex gap-2 mt-1">
                           <Badge
                             variant="outline"
-                            className="text-xs bg-slate-800 text-slate-300 border-slate-700"
+                            className="text-xs bg-slate-700 text-indigo-200 border-slate-600"
                           >
                             utils.ts
                           </Badge>
                           <Badge
                             variant="outline"
-                            className="text-xs bg-slate-800 text-slate-300 border-slate-700"
+                            className="text-xs bg-slate-700 text-indigo-200 border-slate-600"
                           >
-                            Zeile 56
+                            Line 56
                           </Badge>
                         </div>
                       </div>
                     </div>
 
-                    {/* Feedback Item 5 */}
-                    <div className="flex items-start p-3 rounded-md bg-slate-900">
+                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-green-500 transition-all duration-300 hover:bg-slate-800">
                       <div className="mr-3 mt-0.5">
                         <CheckCircle className="h-5 w-5 text-green-500" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-white mb-1">
-                          Gute Testabdeckung für Core-Funktionen
+                        <p className="text-white font-medium mb-1">
+                          Good Test Coverage for Core Functions
+                        </p>
+                        <p className="text-indigo-300 text-sm">
+                          Your test coverage for core functionality is
+                          comprehensive, which helps maintain code quality.
                         </p>
                       </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            ) : null}
-          </div>
-        </div>
+            )}
+          </motion.div>
+        )}
       </div>
     </div>
   );
