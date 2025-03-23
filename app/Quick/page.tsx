@@ -218,10 +218,7 @@ const ProjectAnalyzer: React.FC = () => {
                 </CardContent>
               </Card>
             </div>
-            <div className="flex justify-between w-[130px]">
-              <h1 className="text-md font-bold text-indigo-400 mt-1">
-                view more
-              </h1>
+            <div className="flex justify-center">
               <Button
                 className="bg-indigo-400 mb-5 hover:bg-indigo-400 hover:-translate-y-1 transition-all duration-300"
                 onClick={() => {
