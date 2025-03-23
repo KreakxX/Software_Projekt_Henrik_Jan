@@ -27,19 +27,27 @@ import {
   Cpu,
   Layers,
   Clipboard,
+  Star,
+  TriangleAlert,
 } from "lucide-react";
-import { useState } from "react";
+import { use, useState } from "react";
 import JSZip from "jszip";
 import { motion } from "framer-motion";
+import { askGeminiforCodeReview } from "../api";
+import { div } from "framer-motion/client";
 
 const ProjectAnalyzer: React.FC = () => {
   const [offen, setoffen] = useState<boolean>(false);
   const [file_titleFolder, setFile_titleFolder] = useState<string>("");
   const [file_titleCriteria, setFile_titleCriteria] = useState<string>("");
   const [notenpunkte, setNotenPunkte] = useState<number>(13);
+  const [Quality, setQuality] = useState<number>(50);
+  const [BestPractices, setBestPractices] = useState<number>(50);
+  const [Performance, setPerformance] = useState<number>(50);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [showResults, setShowResults] = useState<boolean>(false);
   const [prompt, setPrompt] = useState<string>("");
+  const [detailedFeedback, setDetailedFeedback] = useState<string[]>([]);
 
   const handleFileUploadFolder = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -100,8 +108,22 @@ const ProjectAnalyzer: React.FC = () => {
     }, 3000);
   };
 
+  const handleCodeReview = async () => {
+    try {
+      const response = await askGeminiforCodeReview();
+      setNotenPunkte(response["Grade_Points_from_0-15"]);
+      setQuality(response["Code_Quality_Points_from_0-100"]);
+      setBestPractices(response["Best_Practices_Points_from_0-100"]);
+      setPerformance(response["Performance_Points_from_0-100"]);
+      setDetailedFeedback(response["detailed_feedback_short_sentence"]);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  };
+
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 text-white ">
+    <div className="min-h-screen w-full bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 text-white  ">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 right-10 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl"></div>
@@ -246,7 +268,10 @@ const ProjectAnalyzer: React.FC = () => {
                   />
                   <Button
                     className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-6 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-600/20"
-                    onClick={handleAnalyze}
+                    onClick={() => {
+                      handleAnalyze();
+                      handleCodeReview();
+                    }}
                     disabled={
                       isAnalyzing || !file_titleFolder || !file_titleCriteria
                     }
@@ -294,9 +319,23 @@ const ProjectAnalyzer: React.FC = () => {
                     <div className="flex items-center gap-6 mb-6 md:mb-0">
                       <div className="relative w-28 h-28">
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-4xl font-bold text-green-500">
-                            {notenpunkte}
-                          </span>
+                          {notenpunkte >= 13 ? (
+                            <span className="text-4xl font-bold text-green-500">
+                              {notenpunkte}
+                            </span>
+                          ) : notenpunkte > 9 ? (
+                            <span className="text-4xl font-bold text-yellow-500">
+                              {notenpunkte}
+                            </span>
+                          ) : notenpunkte > 5 ? (
+                            <span className="text-4xl font-bold text-orange-500">
+                              {notenpunkte}
+                            </span>
+                          ) : (
+                            <span className="text-4xl font-bold text-red-500">
+                              {notenpunkte}
+                            </span>
+                          )}
                         </div>
                         <svg
                           className="w-28 h-28 transform -rotate-90"
@@ -310,43 +349,87 @@ const ProjectAnalyzer: React.FC = () => {
                             stroke="#334155"
                             strokeWidth="8"
                           />
-                          <circle
-                            cx="50"
-                            cy="50"
-                            r="45"
-                            fill="transparent"
-                            stroke="#10B981"
-                            strokeWidth="8"
-                            strokeDasharray="282.6 113.04"
-                            strokeLinecap="round"
-                          />
+                          {notenpunkte >= 13 ? (
+                            <circle
+                              cx="50"
+                              cy="50"
+                              r="45"
+                              fill="transparent"
+                              stroke="#10B981"
+                              strokeWidth="8"
+                              strokeDasharray="282.6 113.04"
+                              strokeLinecap="round"
+                            />
+                          ) : notenpunkte > 9 ? (
+                            <circle
+                              cx="50"
+                              cy="50"
+                              r="45"
+                              fill="transparent"
+                              stroke="#F59E0B"
+                              strokeWidth="8"
+                              strokeDasharray="282.6 113.04"
+                              strokeLinecap="round"
+                            />
+                          ) : notenpunkte > 5 ? (
+                            <circle
+                              cx="50"
+                              cy="50"
+                              r="45"
+                              fill="transparent"
+                              stroke="#F97316"
+                              strokeWidth="8"
+                              strokeDasharray="282.6 113.04"
+                              strokeLinecap="round"
+                            />
+                          ) : (
+                            <circle
+                              cx="50"
+                              cy="50"
+                              r="45"
+                              fill="transparent"
+                              stroke="#EF4444"
+                              strokeWidth="8"
+                              strokeDasharray="282.6 113.04"
+                              strokeLinecap="round"
+                            />
+                          )}
                         </svg>
                       </div>
                       <div>
                         <h3 className="text-2xl font-bold text-indigo-300 mb-1">
-                          Excellent
+                          {notenpunkte >= 13
+                            ? "Excellent"
+                            : notenpunkte > 9
+                            ? "Gut"
+                            : notenpunkte > 5
+                            ? "Mid"
+                            : "Bad"}
                         </h3>
                         <p className="text-indigo-400">
                           Your code meets high quality standards
                         </p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 ">
                       <div className="flex flex-col items-center p-3 bg-slate-800/50 rounded-lg">
                         <span className="text-xl font-bold text-yellow-500">
-                          78%
+                          {Math.round(
+                            (Quality + BestPractices + Performance) / 3
+                          )}{" "}
+                          %
                         </span>
                         <span className="text-indigo-300 text-sm">Overall</span>
                       </div>
                       <div className="flex flex-col items-center p-3 bg-slate-800/50 rounded-lg">
                         <span className="text-xl font-bold text-green-500">
-                          85%
+                          {Quality} %
                         </span>
                         <span className="text-indigo-300 text-sm">Quality</span>
                       </div>
                       <div className="flex flex-col items-center p-3 bg-slate-800/50 rounded-lg">
                         <span className="text-xl font-bold text-yellow-500">
-                          70%
+                          {BestPractices} %
                         </span>
                         <span className="text-indigo-300 text-sm">
                           Best Practices
@@ -354,7 +437,7 @@ const ProjectAnalyzer: React.FC = () => {
                       </div>
                       <div className="flex flex-col items-center p-3 bg-slate-800/50 rounded-lg">
                         <span className="text-xl font-bold text-green-500">
-                          80%
+                          {Performance} %
                         </span>
                         <span className="text-indigo-300 text-sm">
                           Performance
@@ -375,9 +458,11 @@ const ProjectAnalyzer: React.FC = () => {
                         <Code className="h-5 w-5 text-indigo-400" />
                         Code Quality
                       </span>
-                      <span className="text-green-500 font-bold">85%</span>
+                      <span className="text-green-500 font-bold">
+                        {Quality}%
+                      </span>
                     </div>
-                    <Progress value={85} className="h-2 mb-4" />
+                    <Progress value={Quality} className="h-2 mb-4" />
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-indigo-300">Readability</span>
@@ -404,9 +489,11 @@ const ProjectAnalyzer: React.FC = () => {
                         <GitBranch className="h-5 w-5 text-indigo-400" />
                         Best Practices
                       </span>
-                      <span className="text-yellow-500 font-bold">70%</span>
+                      <span className="text-yellow-500 font-bold">
+                        {BestPractices}%
+                      </span>
                     </div>
-                    <Progress value={70} className="h-2 mb-4" />
+                    <Progress value={BestPractices} className="h-2 mb-4" />
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-indigo-300">Design Patterns</span>
@@ -433,9 +520,11 @@ const ProjectAnalyzer: React.FC = () => {
                         <Cpu className="h-5 w-5 text-indigo-400" />
                         Performance
                       </span>
-                      <span className="text-green-500 font-bold">80%</span>
+                      <span className="text-green-500 font-bold">
+                        {Performance}%
+                      </span>
                     </div>
-                    <Progress value={80} className="h-2 mb-4" />
+                    <Progress value={Performance} className="h-2 mb-4" />
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-indigo-300">Efficiency</span>
@@ -484,124 +573,29 @@ const ProjectAnalyzer: React.FC = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4 ">
-                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-green-500 transition-all duration-300 hover:bg-slate-800 mb-7">
-                      <div className="mr-3 mt-0.5">
-                        <CheckCircle className="h-5 w-5 text-green-500" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-white font-medium mb-1">
-                          Excellent Component Structure
-                        </p>
-                        <p className="text-indigo-300 text-sm">
-                          Your component organization follows best practices
-                          with clear separation of concerns.
-                        </p>
-                      </div>
+                  {detailedFeedback.map((feedback, index) => (
+                    <div
+                      className="flex items-center mb-7 w-full font-semibold gap-10 text-indigo-400 text-md border border-indigo-400 p-3 rounded-lg bg-slate-800/50 hover:bg-slate-700/50"
+                      key={index}
+                    >
+                      {feedback.includes("good") && (
+                        <CheckCircle className="text-green-500 mr-2" />
+                      )}
+                      {feedback.includes("bad") && (
+                        <XCircle className="text-red-500 mr-2 " />
+                      )}
+                      {feedback.includes("warn") && (
+                        <TriangleAlert className="text-yellow-500 mr-2 " />
+                      )}
+                      <h1 className="">
+                        {feedback
+                          .replace("good", "")
+                          .replace(":", "")
+                          .replace("bad", "")
+                          .replace("warn", "")}
+                      </h1>
                     </div>
-
-                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-red-500 transition-all duration-300 hover:bg-slate-800 mb-7">
-                      <div className="mr-3 mt-0.5">
-                        <XCircle className="h-5 w-5 text-red-500 animate-ping" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-white font-medium mb-1">
-                          Missing Error Handling in API Calls
-                        </p>
-                        <p className="text-indigo-300 text-sm mb-2">
-                          API calls should include proper error handling to
-                          improve user experience when requests fail.
-                        </p>
-                        <div className="flex gap-2 mt-1">
-                          <Badge
-                            variant="outline"
-                            className="text-xs bg-slate-700 text-indigo-200 border-slate-600"
-                          >
-                            api.ts
-                          </Badge>
-                          <Badge
-                            variant="outline"
-                            className="text-xs bg-slate-700 text-indigo-200 border-slate-600"
-                          >
-                            Line 42
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-yellow-500 transition-all duration-300 hover:bg-slate-800 mb-7">
-                      <div className="mr-3 mt-0.5">
-                        <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-white font-medium mb-1">
-                          Unnecessary Re-renders Due to Missing Memoization
-                        </p>
-                        <p className="text-indigo-300 text-sm mb-2">
-                          Consider using React.memo or useMemo to prevent
-                          unnecessary re-renders of components.
-                        </p>
-                        <div className="flex gap-2 mt-1">
-                          <Badge
-                            variant="outline"
-                            className="text-xs bg-slate-700 text-indigo-200 border-slate-600"
-                          >
-                            UserList.tsx
-                          </Badge>
-                          <Badge
-                            variant="outline"
-                            className="text-xs bg-slate-700 text-indigo-200 border-slate-600"
-                          >
-                            Line 23
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-red-500 transition-all duration-300 hover:bg-slate-800 mb-7">
-                      <div className="mr-3 mt-0.5">
-                        <XCircle className="h-5 w-5 text-red-500 animate-ping" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-white font-medium mb-1">
-                          Unused Variables Detected
-                        </p>
-                        <p className="text-indigo-300 text-sm mb-2">
-                          Remove unused variables to improve code cleanliness
-                          and prevent potential memory issues.
-                        </p>
-                        <div className="flex gap-2 mt-1">
-                          <Badge
-                            variant="outline"
-                            className="text-xs bg-slate-700 text-indigo-200 border-slate-600"
-                          >
-                            utils.ts
-                          </Badge>
-                          <Badge
-                            variant="outline"
-                            className="text-xs bg-slate-700 text-indigo-200 border-slate-600"
-                          >
-                            Line 56
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-green-500 transition-all duration-300 hover:bg-slate-800 mb-7">
-                      <div className="mr-3 mt-0.5">
-                        <CheckCircle className="h-5 w-5 text-green-500" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-white font-medium mb-1">
-                          Good Test Coverage for Core Functions
-                        </p>
-                        <p className="text-indigo-300 text-sm">
-                          Your test coverage for core functionality is
-                          comprehensive, which helps maintain code quality.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                  ))}
                 </CardContent>
               </Card>
             )}
