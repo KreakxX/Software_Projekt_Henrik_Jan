@@ -16,7 +16,7 @@ app = FastAPI()
 
 
 def askGeminiAbout():
-    client = genai.Client(api_key="AIzaSyCLmKUlL_KBS0VktVnxThvDCJv-lrRt3ag") 
+    client = genai.Client(api_key=os.getenv("ApiKey")) 
     CodeText = """import java.util.ArrayList;
 
 public class FehlerfreierCode {
@@ -114,9 +114,7 @@ public class FehlerfreierCode {
             },
         ),
     )
-
     
-
     response = client.models.generate_content(
         model=model,
         contents=contents,
@@ -138,7 +136,6 @@ public class FehlerfreierCode {
     for sentence in feedback_sentences:
         print(f"{sentence}")
        
-
 
 @app.post("/analyzeCodeWithCriteria")
 def upload_files(pdf_file: UploadFile = File(...), files: List[UploadFile] = File(...)):

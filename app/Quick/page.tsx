@@ -94,8 +94,6 @@ const ProjectAnalyzer: React.FC = () => {
     if (!file_titleFolder || !file_titleCriteria) return;
 
     setIsAnalyzing(true);
-
-    // Simulate analysis process
     setTimeout(() => {
       setIsAnalyzing(false);
       setShowResults(true);
@@ -103,7 +101,7 @@ const ProjectAnalyzer: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 text-white">
+    <div className="min-h-screen w-full bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 text-white ">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 right-10 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl"></div>
@@ -115,13 +113,13 @@ const ProjectAnalyzer: React.FC = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-600 bg-clip-text text-transparent font-bold text-5xl"
+            className="bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-900 bg-clip-text text-transparent font-bold text-5xl"
           >
             Quick IO
           </motion.h1>
-          <div className="flex items-center gap-2 bg-slate-800/50 p-2 rounded-full absolute right-0 top-10">
+          <div className="flex items-center gap-2 bg-slate-800/50 p-2 rounded-full absolute right-0 top-10 hover:cursor-pointer hover:bg-slate-700/50">
             <User className="text-indigo-400 w-6 h-6 " />
-            <span className="text-indigo-200 font-medium">User</span>
+            <span className="text-indigo-200 font-medium mr-3">User</span>
           </div>
         </div>
 
@@ -131,7 +129,7 @@ const ProjectAnalyzer: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-center mb-10"
         >
-          <h2 className="text-3xl font-bold text-indigo-300 flex items-center justify-center gap-2">
+          <h2 className="text-3xl font-bold text-indigo-300 flex items-center justify-center gap-2 mb-5">
             AI Code Reviewer
           </h2>
           <p className="text-indigo-200 mt-2 max-w-2xl mx-auto">
@@ -194,7 +192,6 @@ const ProjectAnalyzer: React.FC = () => {
                   </label>
                 </div>
 
-                {/* Criteria Document Upload */}
                 <div className="space-y-3">
                   <h3 className="text-indigo-300 font-semibold text-lg flex items-center gap-2">
                     <Clipboard className="h-5 w-5 text-indigo-400" />
@@ -219,7 +216,7 @@ const ProjectAnalyzer: React.FC = () => {
                             or drag and drop
                           </p>
                           <p className="text-xs text-indigo-400">
-                            PDF or PNG (Max: 20MB)
+                            PDF (Max: 20MB)
                           </p>
                         </div>
                       )}
@@ -235,7 +232,6 @@ const ProjectAnalyzer: React.FC = () => {
                 </div>
               </div>
 
-              {/* AI Prompt */}
               <div className="mt-8 space-y-3">
                 <h3 className="text-indigo-300 font-semibold text-lg flex items-center gap-2">
                   <Lightbulb className="h-5 w-5 text-indigo-400" />
@@ -291,7 +287,6 @@ const ProjectAnalyzer: React.FC = () => {
               </div>
             </div>
 
-            {/* Score Card */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
               <Card className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-indigo-500/20 shadow-lg col-span-1 md:col-span-3">
                 <CardContent className="pt-6 pb-6">
@@ -371,7 +366,6 @@ const ProjectAnalyzer: React.FC = () => {
               </Card>
             </div>
 
-            {/* Metrics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
               <Card className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-indigo-500/20 shadow-lg hover:shadow-indigo-900/30 transition-all duration-300 hover:-translate-y-1">
                 <CardContent className="pt-6">
@@ -461,7 +455,6 @@ const ProjectAnalyzer: React.FC = () => {
               </Card>
             </div>
 
-            {/* Detailed Feedback Toggle */}
             <div className="flex justify-center mb-6">
               <Button
                 variant="outline"
@@ -482,7 +475,6 @@ const ProjectAnalyzer: React.FC = () => {
               </Button>
             </div>
 
-            {/* Detailed Feedback */}
             {offen && (
               <Card className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-indigo-500/20 shadow-lg mb-10">
                 <CardHeader>
@@ -493,7 +485,7 @@ const ProjectAnalyzer: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4 ">
-                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-green-500 transition-all duration-300 hover:bg-slate-800">
+                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-green-500 transition-all duration-300 hover:bg-slate-800 mb-7">
                       <div className="mr-3 mt-0.5">
                         <CheckCircle className="h-5 w-5 text-green-500" />
                       </div>
@@ -508,9 +500,9 @@ const ProjectAnalyzer: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-red-500 transition-all duration-300 hover:bg-slate-800">
+                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-red-500 transition-all duration-300 hover:bg-slate-800 mb-7">
                       <div className="mr-3 mt-0.5">
-                        <XCircle className="h-5 w-5 text-red-500" />
+                        <XCircle className="h-5 w-5 text-red-500 animate-ping" />
                       </div>
                       <div className="flex-1">
                         <p className="text-white font-medium mb-1">
@@ -537,7 +529,7 @@ const ProjectAnalyzer: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-yellow-500 transition-all duration-300 hover:bg-slate-800">
+                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-yellow-500 transition-all duration-300 hover:bg-slate-800 mb-7">
                       <div className="mr-3 mt-0.5">
                         <AlertTriangle className="h-5 w-5 text-yellow-500" />
                       </div>
@@ -566,9 +558,9 @@ const ProjectAnalyzer: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-red-500 transition-all duration-300 hover:bg-slate-800">
+                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-red-500 transition-all duration-300 hover:bg-slate-800 mb-7">
                       <div className="mr-3 mt-0.5">
-                        <XCircle className="h-5 w-5 text-red-500" />
+                        <XCircle className="h-5 w-5 text-red-500 animate-ping" />
                       </div>
                       <div className="flex-1">
                         <p className="text-white font-medium mb-1">
@@ -595,7 +587,7 @@ const ProjectAnalyzer: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-green-500 transition-all duration-300 hover:bg-slate-800">
+                    <div className="flex items-start p-4 rounded-lg bg-slate-800/50 border-l-4 border-green-500 transition-all duration-300 hover:bg-slate-800 mb-7">
                       <div className="mr-3 mt-0.5">
                         <CheckCircle className="h-5 w-5 text-green-500" />
                       </div>
