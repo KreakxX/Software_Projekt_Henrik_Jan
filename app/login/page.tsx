@@ -20,15 +20,15 @@ export default function Login() {
             transition={{ duration: 0.5, delay: 0.3 }}
           >
             <div className="flex justify-center">
-              <h1 className="text-3xl font-bold text-white mt-10">
+              <h1 className="text-3xl font-bold text-indigo-400 mt-10">
                 Why choose us ?
               </h1>
             </div>
             <div className="flex justify-between gap-4 w-[800px] mt-10 mb-10 ">
               <Card className="h-[100px] w-[400px] bg-slate-900 border-slate-800 shadow-xl">
                 <CardContent className="flex justify-between mt-1 gap-5">
-                  <Zap className="text-white mt-3 fill-white  "></Zap>
-                  <h1 className="text-white font-bold ">
+                  <Zap className="text-indigo-400 mt-3 fill-indigo-400  "></Zap>
+                  <h1 className="text-indigo-400 font-bold ">
                     Fast and easy Coding Reviews
                   </h1>
                 </CardContent>
@@ -36,8 +36,8 @@ export default function Login() {
 
               <Card className="h-[100px] w-[400px] bg-slate-900 border-slate-800 shadow-xl">
                 <CardContent className="flex justify-between mt-1 gap-5">
-                  <Timer className="text-white mt-3   "></Timer>
-                  <h1 className="text-white font-bold">
+                  <Timer className="text-indigo-400 mt-3   "></Timer>
+                  <h1 className="text-indigo-400 font-bold">
                     Time efficient for Teachers
                   </h1>
                 </CardContent>
@@ -45,15 +45,15 @@ export default function Login() {
 
               <Card className="h-[100px] w-[400px] bg-slate-900 border-slate-800 shadow-xl">
                 <CardContent className="flex justify-between mt-1 gap-5">
-                  <Settings className="text-white mt-3   "></Settings>
-                  <h1 className="text-white font-bold ">
+                  <Settings className="text-indigo-400 mt-3   "></Settings>
+                  <h1 className="text-indigo-400 font-bold ">
                     Easy scallable and adjustable
                   </h1>
                 </CardContent>
               </Card>
             </div>
             <div className="flex justify-center mb-10 ">
-              <ArrowDown className="h-10 w-10 animate-bounce"></ArrowDown>
+              <ArrowDown className="h-10 w-10 animate-bounce text-indigo-400"></ArrowDown>
             </div>
           </motion.div>
 

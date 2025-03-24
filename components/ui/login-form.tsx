@@ -16,7 +16,7 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="bg-slate-900 border-slate-800 shadow-xl">
         <CardHeader className="border-b border-slate-800">
-          <CardTitle className="text-2xl text-white">Login</CardTitle>
+          <CardTitle className="text-2xl text-indigo-400">Login</CardTitle>
           <CardDescription className="text-slate-400">
             Enter your email below to login to your account
           </CardDescription>
@@ -51,7 +51,7 @@ export function LoginForm({
               </div>
               <Button
                 type="submit"
-                className="w-full bg-white hover:bg-slate-200 text-slate-900"
+                className="w-full bg-indigo-400 hover:bg-slate-200 text-slate-900"
               >
                 Login
               </Button>

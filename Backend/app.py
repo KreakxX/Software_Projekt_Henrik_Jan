@@ -19,7 +19,24 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+def fix_code(wrongcode: str, suggestion: str):
+    client = genai.Client(api_key="--")
+    prompt = f"Use the wrong code: {wrongcode}, and implement the following recommendation: {suggestion}, and only return the corrected code."
+    model = "gemini-2.0-flash"
+    contents = [
+        types.Content(
+            role="user",
+            parts=[
+                types.Part.from_text(text=prompt),
+            ],
+        ),
+    ]
+    response = client.models.generate_content(
+        model=model,
+        contents=contents,
+    )
+    return response
+  
 
 def askGeminiAbout():
     client = genai.Client(api_key="--")
@@ -85,11 +102,12 @@ public class FehlerhafterCode {
     f"highlighting strengths and areas for improvement. Provide clear recommendations for optimization, restructuring, or corrections where necessary. " \
     f"Summarize the evaluation in a structured report, ensuring clarity and actionable insights for improvement." \
     f"If no solution to the task is recognizable, give 0 points" \
-    f"Categorize feedback as follows this is required very important!!!!:" \
-    f"- 'good:' for positive aspects" \
-    f"- 'bad:' for critical issues" \
-    f"- 'warn:' for areas that could be improved" \
+    f"Categorize the feedback this is required and very important!!!!" \
+    f"- 'good: and then the feedback' for positive aspects." \
+    f"- 'bad: and then the feedback' for critical issues" \
+    f"- 'warn: and then the feedback' for areas that could be improved." \
     f"({extra})"
+    
     
     model = "gemini-2.0-flash"
     contents = [
@@ -101,10 +119,10 @@ public class FehlerhafterCode {
         ),
     ]
     generate_content_config = types.GenerateContentConfig(
-        temperature=0.5,
+        temperature=0.05,
         top_p=0.95,
         top_k=40,
-        max_output_tokens=8192,
+        max_output_tokens=10192,
         response_mime_type="application/json",
         response_schema=genai.types.Schema(
             type = genai.types.Type.OBJECT,
@@ -148,14 +166,14 @@ public class FehlerhafterCode {
                 "Performance_Points_from_Resource_Usage_0-100": genai.types.Schema(
                     type = genai.types.Type.NUMBER,
                 ),
-                "detailed_feedback_short_sentence": {
+                "detailed_feedback_short_sentence_whit_bad_good_or_warn_before_and_full_wrong_code_to_see_if_bad_and_Recommendation_seperated": {
                     "type": "array",
                      "items": {
                          "type": "string"
                         }
                 }
             },
-            required = ["Grade_Points_from_0-15", "Code_Quality_Points_from_0-100", "Code_Quality_Points_Readability_from_0-100", "Code_Quality_Points_Documentation_from_0-100", "Code_Quality_Points_Structure_from_0-100", "Best_Practices_Points_from_0-100", "Best_Practices_Points_Design_Patterns_from_0-100", "Best_Practices_Points_Standards_from_0-100", "Best_Practices_Points_Error_Handling_from_0-100", "Performance_Points_from_0-100", "Performance_Points_Efficiency_from_0-100", "Performance_Points_Optimization_from_0-100", "Performance_Points_from_Resource_Usage_0-100", "detailed_feedback_short_sentence"],
+            required = ["Grade_Points_from_0-15", "Code_Quality_Points_from_0-100", "Code_Quality_Points_Readability_from_0-100", "Code_Quality_Points_Documentation_from_0-100", "Code_Quality_Points_Structure_from_0-100", "Best_Practices_Points_from_0-100", "Best_Practices_Points_Design_Patterns_from_0-100", "Best_Practices_Points_Standards_from_0-100", "Best_Practices_Points_Error_Handling_from_0-100", "Performance_Points_from_0-100", "Performance_Points_Efficiency_from_0-100", "Performance_Points_Optimization_from_0-100", "Performance_Points_from_Resource_Usage_0-100", "detailed_feedback_short_sentence_whit_bad_good_or_warn_before_and_full_wrong_code_to_see_if_bad_and_Recommendation_seperated"],
 
         ),
     )
@@ -181,8 +199,6 @@ def askAi():
     return askGeminiAbout()
 
   
-
-
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
