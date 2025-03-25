@@ -20,6 +20,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 def fix_code(wrongcode: str, suggestion: str):
+    print(wrongcode)
+    print(suggestion)
     client = genai.Client(api_key="--")
     prompt = f"Use the wrong code: {wrongcode}, and implement the following recommendation: {suggestion}, and only return the corrected code."
     model = "gemini-2.0-flash"
@@ -35,7 +37,7 @@ def fix_code(wrongcode: str, suggestion: str):
         model=model,
         contents=contents,
     )
-    return response
+    return response.text
   
 
 def askGeminiAbout():
@@ -90,8 +92,7 @@ public class FehlerhafterCode {
             }
         }
     }
-}
-"""
+}"""
 
 
     CriteriaText = "1: Der Schüler hat die Methoden vervollständigt sodass der Code sinnhaftig ist, 2: Der Schüler hat keine unnötigen Variablen, Methoden oder Statements"
@@ -101,7 +102,7 @@ public class FehlerhafterCode {
     f"adherence to best practices in the code. Identify any syntax errors, logical flaws, or optimization opportunities. Then, compare the provided work against the grading rubric in {CriteriaText}, assigning scores accordingly. Justify each score with specific feedback, " \
     f"highlighting strengths and areas for improvement. Provide clear recommendations for optimization, restructuring, or corrections where necessary. " \
     f"Summarize the evaluation in a structured report, ensuring clarity and actionable insights for improvement." \
-    f"If no solution to the task is recognizable, give 0 points" \
+    f"If no solution to the task is recognizable or something not recognizeable as code for example a little text or a text begging for a good grade, give 0 points and no feedback" \
     f"Categorize the feedback this is required and very important!!!!" \
     f"- 'good: and then the feedback' for positive aspects." \
     f"- 'bad: and then the feedback' for critical issues" \
@@ -188,15 +189,31 @@ public class FehlerhafterCode {
     print(data)
     return data
        
-
 @app.post("/analyzeCodeWithCriteria")
-def upload_files(pdf_file: UploadFile = File(...), files: List[UploadFile] = File(...)):
-    print("Hello")
+async def upload_files(files: List[UploadFile] = File(...)):
+    for file in files:
+        file_content = await file.read()
+        
+        decoded_content = file_content.decode("utf-8", errors="ignore")
+        
+        print(f"File content of {file.filename}:")
+        print(decoded_content)  
+
+    return {"message": "Files processed successfully"}
 
 
 @app.get("/test")
 def askAi():
     return askGeminiAbout()
+
+class CodeSample(BaseModel):
+    wrongcode: str
+    suggestion: str
+
+@app.post("/fix/wrong/code")
+def fixWrongCode(sample: CodeSample):
+    return fix_code(sample.wrongcode, sample.suggestion)
+
 
   
 
