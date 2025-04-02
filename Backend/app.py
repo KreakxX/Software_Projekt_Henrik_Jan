@@ -6,6 +6,9 @@ from google import genai
 from google.genai import types
 import json
 from fastapi.middleware.cors import CORSMiddleware
+import zipfile
+import io
+import PyPDF2
 
 
 
@@ -22,7 +25,7 @@ app.add_middleware(
 def fix_code(wrongcode: str, suggestion: str):
     print(wrongcode)
     print(suggestion)
-    client = genai.Client(api_key="--")
+    client = genai.Client(api_key="AIzaSyCss0WR313MCitJtOSvGEfjctzvDik56-A")
     prompt = f"Use the wrong code: {wrongcode}, and implement the following recommendation: {suggestion}, and only return the corrected code."
     model = "gemini-2.0-flash"
     contents = [
@@ -40,8 +43,8 @@ def fix_code(wrongcode: str, suggestion: str):
     return response.text
   
 
-def askGeminiAbout():
-    client = genai.Client(api_key="--")
+def askGeminiAbout(code: str, criteria: str):
+    client = genai.Client(api_key="AIzaSyCss0WR313MCitJtOSvGEfjctzvDik56-A")
     extra = ""
     CodeText = """import java.util.ArrayList;
 
@@ -98,7 +101,7 @@ public class FehlerhafterCode {
     CriteriaText = "1: Der Schüler hat die Methoden vervollständigt sodass der Code sinnhaftig ist, 2: Der Schüler hat keine unnötigen Variablen, Methoden oder Statements"
     
 
-    prompt =  f"Analyze the provided code files ({CodeText}) and evaluate them based on the assessment criteria document ({CriteriaText}). First, check the correctness, efficiency, readability, and " \
+    prompt =  f"Analyze the provided code files ({code}) and evaluate them based on the assessment criteria document ({criteria}). First, check the correctness, efficiency, readability, and " \
     f"adherence to best practices in the code. Identify any syntax errors, logical flaws, or optimization opportunities. Then, compare the provided work against the grading rubric in {CriteriaText}, assigning scores accordingly. Justify each score with specific feedback, " \
     f"highlighting strengths and areas for improvement. Provide clear recommendations for optimization, restructuring, or corrections where necessary. " \
     f"Summarize the evaluation in a structured report, ensuring clarity and actionable insights for improvement." \
@@ -188,23 +191,35 @@ public class FehlerhafterCode {
     data = json.loads(responsetext)
     print(data)
     return data
-       
+
+
 @app.post("/analyzeCodeWithCriteria")
-async def upload_files(files: List[UploadFile] = File(...)):
-    for file in files:
-        file_content = await file.read()
+async def upload_file(file: UploadFile = File(...), pdfFile: UploadFile = File(...)):
+    file_bytes = await file.read()
+    file_stream = io.BytesIO(file_bytes)
+    combined_code = ""
+    with zipfile.ZipFile(file_stream, 'r') as source:
+         files = source.namelist()
+         for file in files:
+            if "node_modules"  in file:  
+                continue
+            if "package-lock.json" in file:
+                continue
+            if ".tsx" in file or ".js" in file or ".jsx" in file or ".ts" in file or ".java" in file or ".css" in file or ".html" in file or ".py" in file or ".pyw" in file:
+                fileContent = source.read(file).decode("utf-8",errors="ignore")
+                combined_code += fileContent + " | next Code File:"
+
+    pdf_file_content = await pdfFile.read()
+    pdf_file_stream = io.BytesIO(pdf_file_content)
+    pdf_reader = PyPDF2.PdfReader(pdf_file_stream)
+    page = pdf_reader.pages[0]
+
+    criteria_text = page.extract_text()    
+    return askGeminiAbout(combined_code, criteria_text)
         
-        decoded_content = file_content.decode("utf-8", errors="ignore")
-        
-        print(f"File content of {file.filename}:")
-        print(decoded_content)  
-
-    return {"message": "Files processed successfully"}
 
 
-@app.get("/test")
-def askAi():
-    return askGeminiAbout()
+    
 
 class CodeSample(BaseModel):
     wrongcode: str

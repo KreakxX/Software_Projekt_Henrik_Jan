@@ -41,7 +41,7 @@ import {
 import { use, useEffect, useState } from "react";
 import JSZip from "jszip";
 import { AnimatePresence, motion } from "framer-motion";
-import { askGeminiforCodeReview, fixWrongCode, testDataUpload } from "../api";
+import { fixWrongCode, testDataUpload } from "../api";
 import { div, h1 } from "framer-motion/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -52,8 +52,8 @@ const ProjectAnalyzer: React.FC = () => {
   const [file_titleCriteria, setFile_titleCriteria] = useState<string>("");
   const [notenpunkte, setNotenPunkte] = useState<number>(0);
   const [Quality, setQuality] = useState<number>(0);
-  const [BestPractices, setBestPractices] = useState<number>(50);
-  const [Performance, setPerformance] = useState<number>(50);
+  const [BestPractices, setBestPractices] = useState<number>(0);
+  const [Performance, setPerformance] = useState<number>(0);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [Analysed, setAnalysed] = useState<boolean>(false);
   const [showResults, setShowResults] = useState<boolean>(false);
@@ -72,6 +72,8 @@ const ProjectAnalyzer: React.FC = () => {
   const [Effiency, setEffiency] = useState<number>(0);
   const [Optimization, setOptimization] = useState<number>(0);
   const [ResourceUsage, setRessourceUsage] = useState<number>(0);
+  const [formDataFolder, setFormdataFolder] = useState<File>();
+  const [formDataCriteria, setFormdataCriteria] = useState<File>();
 
   const tips = [
     "Use the 'Quick Fix' feature to automatically apply suggested fixes to your code.",
@@ -88,24 +90,10 @@ const ProjectAnalyzer: React.FC = () => {
       const files = event.target.files;
       if (!files) return;
 
-      const formData = new FormData();
-      Array.from(files).forEach((file) => {
-        formData.append("files", file, file.webkitRelativePath);
-        setFile_titleFolder(file.name);
-      });
-      for (const file of files) {
-        const zip = await JSZip.loadAsync(file);
-        for (const [relativePath, zipEntry] of Object.entries(zip.files)) {
-          if (!zipEntry.dir) {
-            const fileData = await zipEntry.async("blob");
-            const extractedFile = new File([fileData], relativePath, {
-              type: "application/octet-stream",
-            });
-            formData.append("files", extractedFile, relativePath);
-          }
-        }
-      }
-      await testDataUpload(formData);
+      const file = files[0];
+
+      setFile_titleFolder(file.name);
+      setFormdataFolder(file);
     } catch (error) {
       console.log(error);
       throw error;
@@ -118,13 +106,10 @@ const ProjectAnalyzer: React.FC = () => {
     try {
       const files = event.target.files;
       if (!files) return;
+      const file = files[0];
 
-      const formData = new FormData();
-
-      Array.from(files).forEach((file) => {
-        formData.append("files", file, file.webkitRelativePath);
-        setFile_titleCriteria(file.name);
-      });
+      setFile_titleCriteria(file.name);
+      setFormdataCriteria(file);
     } catch (error) {
       console.log(error);
       throw error;
@@ -133,13 +118,12 @@ const ProjectAnalyzer: React.FC = () => {
 
   const handleAnalyze = () => {
     if (!file_titleFolder || !file_titleCriteria) return;
-
     setIsAnalyzing(true);
     setTimeout(() => {
       setIsAnalyzing(false);
       setAnalysed(true);
       setShowResults(true);
-    }, 5000);
+    }, 24000);
   };
 
   useEffect(() => {
@@ -151,7 +135,11 @@ const ProjectAnalyzer: React.FC = () => {
 
   const handleCodeReview = async () => {
     try {
-      const response = await askGeminiforCodeReview();
+      if (!formDataFolder || !formDataCriteria) {
+        return;
+      }
+
+      const response = await testDataUpload(formDataFolder, formDataCriteria);
       setNotenPunkte(response["Grade_Points_from_0-15"]);
       setQuality(response["Code_Quality_Points_from_0-100"]);
       setBestPractices(response["Best_Practices_Points_from_0-100"]);
