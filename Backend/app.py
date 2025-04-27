@@ -52,7 +52,7 @@ def askGeminiAbout(code: str, criteria: str, title: str, studentname: str):
     CriteriaText = "1: Der Schüler hat die Methoden vervollständigt sodass der Code sinnhaftig ist, 2: Der Schüler hat keine unnötigen Variablen, Methoden oder Statements"
    
 
-    prompt =  f" Analyze the provided code files ({code}) and evaluate them based on the assessment criteria document ({criteria}). First, check the correctness, efficiency, readability, and " \
+    prompt =  f" Analyze the provided code files ({code}) fair and evaluate them based on the assessment for clarification 15 grading points should be achieveable criteria document ({criteria}). First, check the correctness, efficiency, readability, and " \
     f"adherence to best practices in the code. Identify any syntax errors, logical flaws, or optimization opportunities. Then, compare the provided work against the grading rubric in {CriteriaText}, assigning scores accordingly and nice and fair. Justify each score with specific feedback, " \
     f"highlighting strengths and areas for improvement. Provide clear recommendations for optimization, restructuring, or corrections where necessary. " \
     f"Summarize the evaluation in a structured report, ensuring clarity and actionable insights for improvement," \

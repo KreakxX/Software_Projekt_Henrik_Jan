@@ -6,6 +6,9 @@ const api = axios.create({
   baseURL: 'http://localhost:8000'
 });
 
+const databaseAPI = axios.create({
+  baseURL: 'http://localhost:8080/Database'
+});
 
 export const fixWrongCode = async(wrongcode: string, suggestion: string) =>{
   try{
@@ -38,3 +41,21 @@ export const testDataUpload = async (title: string, studentname: string,file: Fi
   } 
 };
 
+export const getAllCodeReviews = async() =>{
+  try{
+    const response = await databaseAPI.get("/get/all/codeReviews")
+    return response.data;
+  }catch(error){
+    console.log(error);
+    throw error;
+  }
+}
+
+export const deleteCodeReviewById = async(id: number) =>{
+  try{
+    await databaseAPI.delete(`/delete/by/${id}`)
+    window.location.reload()
+  }catch(error){
+    console.log(error);
+    throw error;
+  }}

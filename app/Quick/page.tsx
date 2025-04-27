@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import {
-  AlertTriangle,
   CheckCircle,
   ChevronDown,
   ChevronUp,
@@ -20,31 +19,31 @@ import {
   Upload,
   User,
   XCircle,
-  Sparkles,
   BarChart3,
   Zap,
-  Shield,
   Cpu,
   Layers,
   Clipboard,
-  Star,
   TriangleAlert,
   Bookmark,
   CircleXIcon,
-  Cross,
-  X,
-  Wand,
   WandSparkles,
   ArrowDown,
-  Bolt,
+  Trash2,
+  LoaderIcon,
+  LoaderCircle,
 } from "lucide-react";
-import { use, useEffect, useState } from "react";
-import JSZip from "jszip";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { fixWrongCode, testDataUpload } from "../api";
-import { div, h1 } from "framer-motion/client";
+import {
+  deleteCodeReviewById,
+  fixWrongCode,
+  getAllCodeReviews,
+  testDataUpload,
+} from "../api";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { CodeReview } from "./CodeReview";
 
 const ProjectAnalyzer: React.FC = () => {
   const [offen, setoffen] = useState<boolean>(false);
@@ -76,6 +75,7 @@ const ProjectAnalyzer: React.FC = () => {
   const [formDataCriteria, setFormdataCriteria] = useState<File>();
   const [studentName, setStudentName] = useState<string>("");
   const [projectTitle, setProjectTitle] = useState<string>("");
+  const [codeReviews, setCodeReviews] = useState<CodeReview[]>([]);
 
   const tips = [
     "Use the 'Quick Fix' feature to automatically apply suggested fixes to your code.",
@@ -128,12 +128,26 @@ const ProjectAnalyzer: React.FC = () => {
     }, 24000);
   };
 
+  const loadAllCodeReviews = async () => {
+    try {
+      const response = await getAllCodeReviews();
+      setCodeReviews(response);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTip((prev) => (prev + 1) % tips.length);
     }, 4000);
     return () => clearInterval(interval);
   });
+
+  useEffect(() => {
+    loadAllCodeReviews();
+  }, []);
 
   const handleCodeReview = async () => {
     try {
@@ -270,6 +284,7 @@ const ProjectAnalyzer: React.FC = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.3 }}
+          className="text-center mb-10"
         >
           <Card className="bg-indigo-900/20 border border-indigo-500/20 shadow-xl shadow-indigo-900/20 backdrop-blur-sm ">
             <CardHeader className="border-b border-indigo-500/20 pb-4">
@@ -373,6 +388,10 @@ const ProjectAnalyzer: React.FC = () => {
                       value={prompt}
                       onChange={(e) => setPrompt(e.target.value)}
                     />
+                    <h3 className="text-indigo-300 font-semibold text-lg flex items-center gap-2 mb-3">
+                      <Clipboard className="h-5 w-5 text-indigo-400 " />
+                      Review Information
+                    </h3>
                     <div className="flex justify-between gap-5">
                       <Input
                         placeholder="Enter the name of the Student"
@@ -401,7 +420,7 @@ const ProjectAnalyzer: React.FC = () => {
                       {isAnalyzing ? (
                         <>
                           <span className="mr-2">Analyzing</span>
-                          <span className="animate-pulse">...</span>
+                          <LoaderCircle className="animate-spin"></LoaderCircle>
                         </>
                       ) : (
                         <>
@@ -416,6 +435,75 @@ const ProjectAnalyzer: React.FC = () => {
             </CardContent>
           </Card>
         </motion.div>
+        <div className="mt-4 mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <Bookmark className="h-5 w-5 text-indigo-400" />
+            <h3 className="text-xl font-semibold text-indigo-300">
+              Recent Code Reviews
+            </h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {codeReviews.map((review, index) => (
+              <Card
+                key={index}
+                className="bg-indigo-900/20 border border-indigo-500/20 hover:bg-indigo-900/30 transition-all duration-300 cursor-pointer"
+              >
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h4 className="font-medium text-indigo-200">
+                        {review.title || "Untitled Project"}
+                      </h4>
+                      <p className="text-xs text-indigo-400">
+                        {review.student || "Anonymous"}
+                      </p>
+                    </div>
+                    <div className="flex-row">
+                      {review.overAllCodeQuality > 70 ? (
+                        <h1 className="text-xl font-bold text-green-500">
+                          {Math.round(review.overAllCodeQuality)}%
+                        </h1>
+                      ) : review.overAllCodeQuality > 40 ? (
+                        <h1 className="text-xl font-bold text-yellow-500">
+                          {Math.round(review.overAllCodeQuality)}%
+                        </h1>
+                      ) : (
+                        <h1 className="text-xl font-bold text-red-500">
+                          {Math.round(review.overAllCodeQuality)}%
+                        </h1>
+                      )}
+                      <h1 className="text-indigo-300 text-sm ">
+                        overall Code Quality
+                      </h1>
+                    </div>
+                    <Badge
+                      className={`${
+                        review.notenPunkte >= 13
+                          ? "bg-green-500/20 text-green-500"
+                          : review.notenPunkte > 9
+                          ? "bg-yellow-500/20 text-yellow-500"
+                          : review.notenPunkte > 5
+                          ? "bg-orange-500/20 text-orange-500"
+                          : "bg-red-500/20 text-red-500"
+                      }`}
+                    >
+                      {review.notenPunkte}/15 NP
+                    </Badge>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      deleteCodeReviewById(review.reviewId);
+                    }}
+                    className="bg-indigo-600 hover:bg-indigo-600"
+                  >
+                    remove review
+                    <Trash2></Trash2>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
 
         {showResults && (
           <motion.div
@@ -1017,8 +1105,7 @@ const ProjectAnalyzer: React.FC = () => {
                                                   .replace("good", "")
                                                   .replace(":", "")
                                                   .replace("bad", "")
-                                                  .replace("warn", "")
-                                                  .replace(/`/g, "")}
+                                                  .replace("warn", "")}
                                           </p>
                                           <p className="text-xs text-indigo-400"></p>
                                         </div>
@@ -1067,8 +1154,7 @@ const ProjectAnalyzer: React.FC = () => {
                                                     .replace("good", "")
                                                     .replace(":", "")
                                                     .replace("bad", "")
-                                                    .replace("warn", "")
-                                                    .replace(/`/g, "")}
+                                                    .replace("warn", "")}
                                             </h4>
                                           ) : null}
                                         </div>
