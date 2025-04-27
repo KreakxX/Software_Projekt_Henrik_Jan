@@ -74,6 +74,8 @@ const ProjectAnalyzer: React.FC = () => {
   const [ResourceUsage, setRessourceUsage] = useState<number>(0);
   const [formDataFolder, setFormdataFolder] = useState<File>();
   const [formDataCriteria, setFormdataCriteria] = useState<File>();
+  const [studentName, setStudentName] = useState<string>("");
+  const [projectTitle, setProjectTitle] = useState<string>("");
 
   const tips = [
     "Use the 'Quick Fix' feature to automatically apply suggested fixes to your code.",
@@ -139,7 +141,12 @@ const ProjectAnalyzer: React.FC = () => {
         return;
       }
 
-      const response = await testDataUpload(formDataFolder, formDataCriteria);
+      const response = await testDataUpload(
+        projectTitle,
+        studentName,
+        formDataFolder,
+        formDataCriteria
+      );
       setNotenPunkte(response["Grade_Points_from_0-15"]);
       setQuality(response["Code_Quality_Points_from_0-100"]);
       setBestPractices(response["Best_Practices_Points_from_0-100"]);
@@ -359,37 +366,51 @@ const ProjectAnalyzer: React.FC = () => {
                   AI Instructions (Optional)
                 </h3>
                 <div className="flex gap-4">
-                  <Input
-                    placeholder="Enter specific instructions for the AI reviewer..."
-                    className="flex-1 bg-slate-800/50 border-indigo-500/30 focus:border-indigo-400 text-indigo-100 placeholder:text-indigo-300/50"
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                  />
-                  <Button
-                    className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-6 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-600/20"
-                    onClick={() => {
-                      handleAnalyze();
-                      handleCodeReview();
-                    }}
-                    disabled={
-                      isAnalyzing ||
-                      !file_titleFolder ||
-                      !file_titleCriteria ||
-                      Analysed
-                    }
-                  >
-                    {isAnalyzing ? (
-                      <>
-                        <span className="mr-2">Analyzing</span>
-                        <span className="animate-pulse">...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Zap className="mr-2 h-4 w-4" />
-                        Analyze Code
-                      </>
-                    )}
-                  </Button>
+                  <div className="flex-row w-full ">
+                    <Input
+                      placeholder="Enter specific instructions for the AI reviewer..."
+                      className="flex-1 bg-slate-800/50 border-indigo-500/30 focus:border-indigo-400 text-indigo-100 placeholder:text-indigo-300/50 mb-5"
+                      value={prompt}
+                      onChange={(e) => setPrompt(e.target.value)}
+                    />
+                    <div className="flex justify-between gap-5">
+                      <Input
+                        placeholder="Enter the name of the Student"
+                        className="flex-1 bg-slate-800/50 border-indigo-500/30 focus:border-indigo-400 text-indigo-100 placeholder:text-indigo-300/50 mb-5"
+                        onChange={(e) => setStudentName(e.target.value)}
+                      />
+                      <Input
+                        placeholder="Enter the name of the Project"
+                        className="flex-1 bg-slate-800/50 border-indigo-500/30 focus:border-indigo-400 text-indigo-100 placeholder:text-indigo-300/50 mb-5"
+                        onChange={(e) => setProjectTitle(e.target.value)}
+                      />
+                    </div>
+                    <Button
+                      className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-6 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-600/20 w-full "
+                      onClick={() => {
+                        handleAnalyze();
+                        handleCodeReview();
+                      }}
+                      disabled={
+                        isAnalyzing ||
+                        !file_titleFolder ||
+                        !file_titleCriteria ||
+                        Analysed
+                      }
+                    >
+                      {isAnalyzing ? (
+                        <>
+                          <span className="mr-2">Analyzing</span>
+                          <span className="animate-pulse">...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="mr-2 h-4 w-4" />
+                          Analyze Code
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardContent>

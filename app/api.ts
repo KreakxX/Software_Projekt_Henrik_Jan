@@ -17,11 +17,14 @@ export const fixWrongCode = async(wrongcode: string, suggestion: string) =>{
   }
 }
 
-export const testDataUpload = async (file: File, pdfFile: File) => {   
+export const testDataUpload = async (title: string, studentname: string,file: File, pdfFile: File) => {   
   try {     
     const formData = new FormData();
+    formData.append('title', title)
+    formData.append('studentname', studentname)
     formData.append('file', file);
     formData.append('pdfFile', pdfFile);
+    
 
     const response = await api.post("/analyzeCodeWithCriteria", formData, {       
       headers: {         
