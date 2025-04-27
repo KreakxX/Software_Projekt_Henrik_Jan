@@ -12,6 +12,7 @@ import PyPDF2
 import http.client, json
 from urllib.parse import urlparse
 import requests
+import math
 
 
 
@@ -145,7 +146,7 @@ def askGeminiAbout(code: str, criteria: str, title: str, studentname: str):
     performance = data1["Performance_Points_from_0-100"]
 
     overall = (quality + bestpractises + performance) / 3
-
+    overall = math.ceil(overall)
     data = {
         'title': title,
         'studentName': studentname,
