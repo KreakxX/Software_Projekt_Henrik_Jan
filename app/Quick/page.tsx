@@ -32,6 +32,7 @@ import {
   Trash2,
   LoaderIcon,
   LoaderCircle,
+  Check,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -231,11 +232,6 @@ const ProjectAnalyzer: React.FC = () => {
           >
             Quick IO
           </motion.h1>
-
-          <div className="flex items-center gap-2 bg-slate-800/50 p-2 rounded-full absolute right-0 top-10 hover:cursor-pointer hover:bg-slate-700/50">
-            <User className="text-indigo-400 w-6 h-6 " />
-            <span className="text-indigo-200 font-medium mr-3">User</span>
-          </div>
         </div>
         <div className="flex justify-center mb-15 mt-5  ">
           <div className="flex items-center gap-3 rounded-lg bg-indigo-900/20 border border-indigo-500/30 w-[800px]  p-4 ">
@@ -1344,6 +1340,94 @@ const ProjectAnalyzer: React.FC = () => {
             )}
           </motion.div>
         )}
+      </div>
+      <h1 className="text-center font-bold text-4xl mb-10">Pricing</h1>
+
+      <div className="flex justify-center  ">
+        <div className="flex jusitfy-between gap-15">
+          <Card className="w-[300px] h-[400px] bg-indigo-900/20 border border-indigo-500/20 hover:bg-indigo-900/30 transition-all duration-300  border-none">
+            <CardHeader className="text-center text-white font-bold text-2xl">
+              Standard
+            </CardHeader>
+            <CardContent>
+              <ol className="text-white space-y-4">
+                {[
+                  "10 Code Reviews",
+                  "Free Support",
+                  "10 Projects saved",
+
+                  "2x AI Prompts",
+                ].map((item, index) => (
+                  <li key={index} className="flex items-center gap-3">
+                    <Check className="text-green-500 w-5 h-5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ol>
+              <h1 className="text-white font-bold text-2xl mt-10 mb-4">
+                5.99 € / mtl
+              </h1>
+              <Button className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-6 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-600/20 w-full ">
+                Buy now
+              </Button>
+            </CardContent>
+          </Card>
+          <Card className="w-[300px] h-[470px] bg-indigo-900/80 border border-indigo-500/20 hover:bg-indigo-900/30 transition-all duration-300  border-none">
+            <CardHeader className="text-center text-white font-bold text-2xl">
+              Premium
+            </CardHeader>
+            <CardContent>
+              <ol className="text-white space-y-4">
+                {[
+                  "all Standard features",
+                  "75 Code Reviews",
+                  "Premium Support",
+                  "50 Projects saved",
+                  "20x AI Prompts",
+                ].map((item, index) => (
+                  <li key={index} className="flex items-center gap-3">
+                    <Check className="text-green-500 w-5 h-5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ol>
+              <h1 className="text-white font-bold text-3xl mt-10 mb-4">
+                12.99 € / mtl
+              </h1>
+              <Button className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-6 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-600/20 w-full ">
+                Buy now
+              </Button>
+            </CardContent>
+          </Card>
+          <Card className="w-[300px] h-[460px] bg-indigo-900/20 border border-indigo-500/20 hover:bg-indigo-900/30 transition-all duration-300  border-none">
+            <CardHeader className="text-center text-white font-bold text-2xl">
+              Enterprise
+            </CardHeader>
+            <CardContent>
+              <ol className="text-white space-y-4">
+                {[
+                  "all Premium features",
+                  "unlimited Code Reviews",
+                  "Premium Support",
+                  "unlimited Projects saved",
+                  "unlimited AI Prompts",
+                  "Own AI",
+                ].map((item, index) => (
+                  <li key={index} className="flex items-center gap-3">
+                    <Check className="text-green-500 w-5 h-5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ol>
+              <h1 className="text-white font-bold text-3xl mt-10 mb-4">
+                49.99 € / mtl
+              </h1>
+              <Button className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-6 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-600/20 w-full ">
+                Buy now
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

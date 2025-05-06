@@ -29,7 +29,7 @@ app.add_middleware(
 def fix_code(wrongcode: str, suggestion: str):
     print(wrongcode)
     print(suggestion)
-    client = genai.Client(api_key="AIzaSyCss0WR313MCitJtOSvGEfjctzvDik56-A")
+    client = genai.Client(api_key="")
     prompt = f"Use the wrong code: {wrongcode}, and implement the following recommendation: {suggestion}, and only return the corrected code."
     model = "gemini-2.0-flash"
     contents = [
@@ -48,12 +48,10 @@ def fix_code(wrongcode: str, suggestion: str):
   
 
 def askGeminiAbout(code: str, criteria: str, title: str, studentname: str):
-    client = genai.Client(api_key="AIzaSyCss0WR313MCitJtOSvGEfjctzvDik56-A")
-    CriteriaText = "1: Der Schüler hat die Methoden vervollständigt sodass der Code sinnhaftig ist, 2: Der Schüler hat keine unnötigen Variablen, Methoden oder Statements"
-   
+    client = genai.Client(api_key="")   
 
-    prompt =  f" Analyze the provided code files ({code}) fair and evaluate them based on the assessment for clarification 15 grading points should be achieveable criteria document ({criteria}). First, check the correctness, efficiency, readability, and " \
-    f"adherence to best practices in the code. Identify any syntax errors, logical flaws, or optimization opportunities. Then, compare the provided work against the grading rubric in {CriteriaText}, assigning scores accordingly and nice and fair. Justify each score with specific feedback, " \
+    prompt =  f" Analyze the provided code files ({code}) fair and evaluate them based on the assessment for clarification 15 grading points should be achieveable because the important factor is that the code works criteria document ({criteria}). First, check the correctness, efficiency, readability, and " \
+    f"adherence to best practices in the code. Identify any syntax errors, logical flaws, or optimization opportunities. Then, compare the provided work against the grading rubric in {criteria}, assigning scores accordingly and nice and fair. Justify each score with specific feedback, " \
     f"highlighting strengths and areas for improvement. Provide clear recommendations for optimization, restructuring, or corrections where necessary. " \
     f"Summarize the evaluation in a structured report, ensuring clarity and actionable insights for improvement," \
     f"If no solution to the task is recognizable or something not recognizeable as code for example a little text or a text begging for a good grade, give 0 points and no feedback" \
@@ -138,22 +136,26 @@ def askGeminiAbout(code: str, criteria: str, title: str, studentname: str):
         config=generate_content_config
     )
     responsetext = response.text
-    data1 = json.loads(responsetext)
-    url = "http://localhost:8080/Database/save/new/codeReview"
-    
-    quality = data1["Code_Quality_Points_from_0-100"]
-    bestpractises = data1["Best_Practices_Points_from_0-100"]
-    performance = data1["Performance_Points_from_0-100"]
+    try:
+        data1 = json.loads(responsetext)
+        url = "http://localhost:8080/Database/save/new/codeReview"
 
-    overall = (quality + bestpractises + performance) / 3
-    overall = math.ceil(overall)
-    data = {
-        'title': title,
-        'studentName': studentname,
-        'notenPunkte': data1["Grade_Points_from_0-15"],
-        'overAllQualityPoints': overall
-    }
-    response = requests.post(url, json=data)
+        quality = data1["Code_Quality_Points_from_0-100"]
+        bestpractises = data1["Best_Practices_Points_from_0-100"]
+        performance = data1["Performance_Points_from_0-100"]
+
+        overall = (quality + bestpractises + performance) / 3
+        overall = math.ceil(overall)
+        data = {
+            'title': title,
+            'studentName': studentname,
+            'notenPunkte': data1["Grade_Points_from_0-15"],
+            'overAllQualityPoints': overall
+        }
+        response = requests.post(url, json=data)
+    except:
+        print("is fine")
+
 
     return data1
 
