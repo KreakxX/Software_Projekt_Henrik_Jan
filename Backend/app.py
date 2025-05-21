@@ -199,7 +199,6 @@ def fixWrongCode(sample: CodeSample):
 
 
 def notification():
-    u = urlparse("https://discord.com/api/webhooks/1366014925717372948/NpbsvGS2WFvVR60V7eM42IRSVpNu9ToA60ScrPeWoYiBkeZy7y1NR_NGMx3nishbvjXb")
     c = http.client.HTTPSConnection(u.netloc)
     c.request("POST", u.path, body=json.dumps({"content": "BackEnd Started"}), headers={'Content-Type': 'application/json'})
     c.getresponse()
